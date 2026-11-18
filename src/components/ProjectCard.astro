@@ -1,0 +1,210 @@
+---
+import { withBase } from '../utils/url';
+
+interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+  imageWidth?: number;
+  transparentBg?: boolean;
+  tags: string[];
+  ctaLabel?: string;
+}
+
+const {
+  slug,
+  title,
+  description,
+  image,
+  imageAlt,
+  imageWidth,
+  transparentBg = true,
+  tags,
+  ctaLabel = 'View Case Study Details',
+} = Astro.props;
+
+const href = withBase(`/${slug}`);
+const imgSrc = withBase(image);
+---
+
+<article class="project-card">
+  <div class="image-wrapper">
+    <img
+      src={imgSrc}
+      alt={imageAlt}
+      class={`laptop-img ${!transparentBg ? 'laptop-img--white-bg' : ''}`}
+      style={imageWidth ? `width: ${imageWidth}px; max-width: 100%;` : undefined}
+      loading="lazy"
+    />
+  </div>
+
+  <h2 class="project-title">
+    <a href={href} class="project-card__link">
+      {title}
+    </a>
+  </h2>
+
+  <p class="project-description">{description}</p>
+
+  <div class="tag-container" aria-label="Tools and skills used">
+    {tags.map((tag) => <span class="tag">{tag}</span>)}
+  </div>
+
+  <span class="case-study-cta" aria-hidden="true">
+    {ctaLabel}
+  </span>
+</article>
+
+<style>
+  /* Accessible Full-Card Click Pattern (No invalid nested <button> inside <a>) */
+  .project-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    text-align: left;
+    background: var(--card-bg);
+    padding: 46px;
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    height: 100%;
+    width: 100%;
+    gap: 1.15rem;
+    transition: var(--transition-card);
+    cursor: pointer;
+  }
+
+  .project-card:hover,
+  .project-card:focus-within {
+    transform: translateY(-8px) scale(1.012);
+    box-shadow: var(--shadow-card-hover);
+    border-color: rgba(51, 33, 255, 0.22);
+  }
+
+  .image-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--radius-md);
+    margin-bottom: 12px;
+    width: 100%;
+    min-height: 220px;
+  }
+
+  .laptop-img {
+    height: auto;
+    max-width: 100%;
+    max-height: 310px;
+    object-fit: contain;
+    display: inline-block;
+    transition: transform 0.4s var(--ease-smooth), filter 0.4s var(--ease-smooth);
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.12));
+  }
+
+  .project-card:hover .laptop-img {
+    transform: scale(1.03);
+    filter: drop-shadow(0 22px 45px rgba(0, 0, 0, 0.18));
+  }
+
+  /* For screenshots that have a solid white background rather than an alpha cutout,
+     blend seamlessly into the white card instead of casting a rectangular box shadow */
+  .laptop-img--white-bg {
+    filter: none;
+    mix-blend-mode: multiply;
+  }
+
+  .project-card:hover .laptop-img--white-bg {
+    transform: scale(1.03);
+    filter: none;
+  }
+
+  .project-title {
+    font-size: 26px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-pure-black);
+  }
+
+  .project-card__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Stretches the link click area over the whole card while keeping semantic HTML */
+  .project-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: var(--radius-card);
+  }
+
+  .project-description {
+    font-size: 16.5px;
+    line-height: 1.62;
+    color: var(--text-muted);
+    margin: 0 0 8px 0;
+  }
+
+  .tag-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .tag {
+    background-color: var(--primary-blue);
+    color: var(--text-on-primary);
+    padding: 6px 16px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-heading);
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .case-study-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+    border: 1.5px solid var(--primary-blue);
+    color: var(--primary-blue);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-family: var(--font-heading);
+    font-size: 14.5px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: background-color 0.28s ease, color 0.28s ease;
+    width: fit-content;
+    margin-top: auto;
+  }
+
+  .project-card:hover .case-study-cta,
+  .project-card:focus-within .case-study-cta {
+    background: var(--primary-blue);
+    color: var(--text-on-primary);
+  }
+
+  @media (max-width: 640px) {
+    .project-card {
+      padding: 28px 22px;
+    }
+
+    .project-title {
+      font-size: 22px;
+    }
+
+    .case-study-cta {
+      width: 100%;
+    }
+  }
+</style>

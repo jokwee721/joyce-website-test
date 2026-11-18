@@ -1,0 +1,364 @@
+---
+import { withBase } from '../utils/url';
+
+const portraitUrl = withBase('/images/home/joyce-portrait.png');
+
+const categories = [
+  { label: 'Learning Experience Design', href: withBase('/all-lxd-projects') },
+  { label: 'User Experience Design', href: withBase('/all-ux-projects') },
+  { label: 'Graphic Design', href: withBase('/all-graphic-design') },
+];
+---
+
+<!-- 1. Full-Viewport Animated "JY" Monogram Hero -->
+<section class="animation-viewport" aria-label="Joyce Yang Monogram Intro">
+  <div class="outer-border-box">
+    <div class="inner-black-square">
+      <h1 class="animated-jy" aria-label="Joyce Yang">JY</h1>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Scaled Name Banner & 2-Column Bio Section -->
+<section id="about-joyce" class="home-bio-section">
+  <div class="home-container">
+    <h2 class="display-name reveal-on-scroll" data-delay="0">
+      J O Y C E &nbsp; Y A N G
+    </h2>
+
+    <div class="bio-grid">
+      <div class="bio-portrait-col reveal-on-scroll" data-delay="120">
+        <div class="portrait-ring">
+          <img
+            src={portraitUrl}
+            alt="Portrait of Joyce Yang"
+            class="portrait-img"
+            width="420"
+            height="420"
+            loading="eager"
+          />
+        </div>
+      </div>
+
+      <div class="bio-text-col">
+        <p class="reveal-on-scroll" data-delay="160">
+          Based in San Diego and Orange County, Joyce specializes in creating memorable instructional designs that are
+          intuitive and learner-centered. She believes that the best design is simple, purposeful, and easy to
+          navigate.
+        </p>
+        <p class="reveal-on-scroll" data-delay="220">
+          In addition to her design experience, Joyce brings 6+ years of educational leadership and is currently
+          pursuing a second master’s degree in Instructional Design and Technology, focusing on creating learning
+          solutions that drive engagement, improvement, and motivation.
+        </p>
+        <p class="reveal-on-scroll" data-delay="280">
+          Outside of instructional design, she has collaborated with WeConcile, an early-stage start-up, and designed a
+          food service app that was a finalist in the 2022 Global Innovation Challenge, Design for Crisis, hosted by
+          the UMO Design Foundation.
+        </p>
+        <p class="reveal-on-scroll" data-delay="340">
+          Outside of innovating, you can find Joyce reading 📖, doing ceramics🏺, hot yoga 🧘‍♀️, traveling 🌄, and
+          playing tennis🎾.
+        </p>
+
+        <div class="bio-inline-links reveal-on-scroll" data-delay="400">
+          <a href={withBase('/resume')} class="bio-arrow-link">Resume →</a>
+          <a
+            href="https://www.linkedin.com/in/joyce-yang00/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bio-arrow-link"
+          >
+            LinkedIn →
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Bottom Category CTA Buttons -->
+    <nav class="category-cta-row" aria-label="Portfolio Categories">
+      {
+        categories.map((cat, idx) => (
+          <a
+            href={cat.href}
+            class="category-cta-btn reveal-on-scroll"
+            data-delay={String(100 + idx * 90)}
+          >
+            {cat.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</section>
+
+<script>
+  function initHomeAnimations() {
+    // 1. Lock the "JY" monogram once its initial entrance finishes
+    const jy = document.querySelector('.animated-jy');
+    if (jy) {
+      jy.addEventListener(
+        'animationend',
+        () => {
+          jy.classList.add('is-landed');
+        },
+        { once: true }
+      );
+    }
+
+    // 2. Scroll-triggered slide-up reveal for Name, Portrait, Bio & Category CTAs
+    const revealItems = document.querySelectorAll<HTMLElement>('.reveal-on-scroll');
+    if (!revealItems.length) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      revealItems.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target as HTMLElement;
+            const delay = Number(el.dataset.delay || '0');
+            el.style.transitionDelay = `${delay}ms`;
+            el.classList.add('is-visible');
+            observer.unobserve(el);
+          }
+        });
+      },
+      {
+        threshold: 0.14,
+        rootMargin: '0px 0px -40px 0px',
+      }
+    );
+
+    revealItems.forEach((el) => observer.observe(el));
+  }
+
+  initHomeAnimations();
+  document.addEventListener('astro:after-swap', initHomeAnimations);
+</script>
+
+<style>
+  /* 1. Viewport Monogram Hero (Preserved from home.html) */
+  .animation-viewport {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 520px;
+    background: var(--bg-page);
+  }
+
+  .outer-border-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px;
+    height: 320px;
+    background-color: #ffffff;
+    border: 3px solid #000000;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+
+  .inner-black-square {
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .animated-jy {
+    color: #ffffff;
+    font-size: 80px;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    margin: 0;
+    will-change: transform;
+    transform: translate3d(0, 200px, 0);
+    animation: flyUpAndLand 5s var(--ease-out-expo) 1 both;
+  }
+
+  .animated-jy.is-landed {
+    animation: none;
+    transform: translate3d(0, 0, 0);
+  }
+
+  @keyframes flyUpAndLand {
+    0% {
+      transform: translate3d(0, 200px, 0);
+    }
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* Scroll-Reveal Slide-Up Movement (Matching Squarespace preSlide/slideIn feel) */
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translate3d(0, 42px, 0);
+    transition:
+      opacity 0.85s var(--ease-out-expo),
+      transform 0.85s var(--ease-out-expo);
+    will-change: opacity, transform;
+  }
+
+  .reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+
+  /* 2. Scaled Name & Bio Section */
+  .home-bio-section {
+    padding: 40px 28px 110px 28px;
+  }
+
+  .home-container {
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+
+  .display-name {
+    text-align: center;
+    font-size: clamp(2.2rem, 6.8vw, 6.2rem);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-pure-black);
+    margin: 0 0 64px 0;
+    line-height: 1.08;
+  }
+
+  .bio-grid {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 64px;
+    align-items: center;
+    margin-bottom: 72px;
+  }
+
+  .bio-portrait-col {
+    display: flex;
+    justify-content: center;
+  }
+
+  .portrait-ring {
+    width: min(380px, 82vw);
+    height: min(380px, 82vw);
+    border-radius: 50%;
+    border: 2px solid #000000;
+    padding: 10px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: transform 0.5s var(--ease-smooth);
+  }
+
+  .portrait-ring:hover {
+    transform: translateY(-4px) scale(1.015);
+  }
+
+  .portrait-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .bio-text-col p {
+    font-size: 1.08rem;
+    line-height: 1.75;
+    color: var(--text-main);
+    margin: 0 0 20px 0;
+  }
+
+  .bio-inline-links {
+    display: flex;
+    gap: 28px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  .bio-arrow-link {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-blue);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+    transition: transform 0.2s ease, color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .bio-arrow-link:hover {
+    transform: translateX(3px);
+    color: var(--primary-blue-hover);
+  }
+
+  /* 3. Bottom Category CTAs */
+  .category-cta-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 20px;
+  }
+
+  .category-cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px 24px;
+    border: 2px solid var(--primary-blue);
+    border-radius: 12px;
+    color: var(--primary-blue);
+    background: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 1.02rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition:
+      opacity 0.85s var(--ease-out-expo),
+      transform 0.28s var(--ease-smooth),
+      background-color 0.28s var(--ease-smooth),
+      color 0.28s var(--ease-smooth),
+      box-shadow 0.28s var(--ease-smooth);
+  }
+
+  .category-cta-btn:hover {
+    background: var(--primary-blue);
+    color: #ffffff;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px var(--primary-blue-shadow);
+  }
+
+  @media (max-width: 900px) {
+    .bio-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+
+    .category-cta-row {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .outer-border-box {
+      width: 260px;
+      height: 260px;
+    }
+
+    .animated-jy {
+      font-size: 64px;
+    }
+  }
+</style>

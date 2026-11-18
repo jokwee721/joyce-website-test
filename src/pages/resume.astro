@@ -1,0 +1,111 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { withBase } from '../utils/url';
+
+const resumeImageUrl = withBase('/images/resume/joyce-yang-resume.png');
+const resumeDownloadUrl =
+  'https://drive.google.com/file/d/15rs8D7ARLksXGkHV2CUa0He_dHZLzOMR/view?usp=sharing';
+---
+
+<BaseLayout title="Resume — Joyce Yang" showNavbar={true} showFooter={true}>
+  <section class="resume-section">
+    <div class="resume-container">
+      <header class="resume-top-bar">
+        <h1 class="resume-heading">JOYCE YANG | RESUME</h1>
+        <a
+          href={resumeDownloadUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="download-resume-btn"
+        >
+          Download Resume
+        </a>
+      </header>
+
+      <div class="resume-sheet-card">
+        <img
+          src={resumeImageUrl}
+          alt="Joyce Yang Resume — Instructional Designer and UX Designer"
+          class="resume-image"
+          loading="eager"
+        />
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .resume-section {
+    padding: 48px 28px 96px 28px;
+    background: var(--bg-surface);
+  }
+
+  .resume-container {
+    max-width: var(--container-narrow);
+    margin: 0 auto;
+  }
+
+  .resume-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+
+  .resume-heading {
+    font-size: clamp(1.35rem, 3vw, 1.85rem);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--text-pure-black);
+    margin: 0;
+  }
+
+  .download-resume-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 26px;
+    border: 2px solid var(--primary-blue);
+    border-radius: 10px;
+    color: var(--primary-blue);
+    background: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  }
+
+  .download-resume-btn:hover {
+    background: var(--primary-blue);
+    color: #ffffff;
+    transform: translateY(-2px);
+  }
+
+  .resume-sheet-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-subtle);
+    padding: 24px;
+  }
+
+  .resume-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 640px) {
+    .resume-section {
+      padding: 28px 16px 64px 16px;
+    }
+
+    .resume-sheet-card {
+      padding: 12px;
+    }
+  }
+</style>

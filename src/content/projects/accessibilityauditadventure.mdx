@@ -1,0 +1,70 @@
+---
+title: "Accessibility Audit Adventure"
+subtitle: "Articulate Storyline · Featured at DemoFest, DevLearn Conference 2026"
+category: "lxd"
+order: 4
+description: "An engaging, scenario-based learning quest that empowers creators to design inclusive digital experiences by mastering the foundational POUR accessibility standards."
+image: "/images/projects/accessibilityauditadventure/hero-mockup.png"
+imageAlt: "Screenshot of Accessibility Audit Adventure interactive course"
+tags:
+  - "Articulate Storyline"
+  - "Figma"
+  - "Canva"
+ctaLabel: "View Case Study Details"
+launchUrl: "https://joycekyang.github.io/AccessibilityAuditAdventure/"
+launchLabel: "Launch Experience"
+youtubeEmbedUrl: "https://www.youtube.com/embed/x34vv1IUmaA"
+meta:
+  - label: "Recognition"
+    value: "Featured at DemoFest, DevLearn Conference 2026"
+  - label: "Audience"
+    value: "Visual designers, instructional designers, and UX/UI design students"
+  - label: "Responsibilities"
+    value: "Script writing, storyboarding, visual design, development"
+  - label: "Problem Solved"
+    value: "Explains the 4 pillars of Accessibility (POUR) in a welcoming cozy-game aesthetic"
+  - label: "Tools"
+    value: "Articulate Storyline, Generative AI images, JavaScript"
+gallery:
+  - src: "/images/projects/accessibilityauditadventure/screen-1.png"
+    alt: "Accessibility Audit Adventure title screen"
+  - src: "/images/projects/accessibilityauditadventure/screen-2.png"
+    alt: "Character selection and custom variable name input screen"
+  - src: "/images/projects/accessibilityauditadventure/screen-3.png"
+    alt: "Interactive island map navigation overview"
+  - src: "/images/projects/accessibilityauditadventure/screen-4.png"
+    alt: "Island One: Perceivable colorblind-friendly signage challenge"
+  - src: "/images/projects/accessibilityauditadventure/screen-5.png"
+    alt: "Island Two: Operable universal ramp navigation scenario"
+  - src: "/images/projects/accessibilityauditadventure/screen-6.png"
+    alt: "Island Three: Understandable clear signage scenario"
+  - src: "/images/projects/accessibilityauditadventure/screen-7.png"
+    alt: "Island Four: Robust adaptable ride box design scenario"
+  - src: "/images/projects/accessibilityauditadventure/screen-8.png"
+    alt: "Custom JavaScript rotational stone puzzle interaction"
+  - src: "/images/projects/accessibilityauditadventure/screen-9.png"
+    alt: "Slide layers and star points progression feedback"
+---
+
+## Overview
+
+The **Accessibility Audit Adventure** is an immersive micro-learning experience designed to demystify the complexities of digital accessibility for visual designers, instructional designers, and UX/UI students. By utilizing a "cozy-game" aesthetic, the course transforms the often-intimidating Web Content Accessibility Guidelines (WCAG) into an engaging island exploration. Learners navigate through the four pillars of accessibility—**Perceivable, Operable, Understandable, and Robust (POUR)**—within a supportive, low-stress environment that prioritizes practical application over rote memorization.
+
+* **Island One (Perceivable):** Focuses on the principle that information must be able to be seen or heard. The learner proposes that clear, icon-based signage will help the goats (who are red-green colorblind) distinguish between safe and poisonous foods.
+* **Island Two (Operable):** Focuses on ensuring interfaces are navigable. The snakes on this island only have stairs, which are inaccessible due to their lack of legs. Learners must propose that universal ramps be added to help with mobility for all.
+* **Island Three (Understandable):** Represents the need for content to be easy to follow. Learners are faced with ostriches that cannot find their way to snacks because of obscure and confusing signage. Learners propose that using simple language and predictable signposts will help these islanders.
+* **Island Four (Robust):** Focuses on technology being adaptable. Learners encounter rhinos that need an accessible solution for rollercoaster ride boxes to accommodate all sizes. The learners propose an adjustable ride box using different seatbelt lengths as a solution for adaptable design.
+
+## Storyline Features Implemented
+
+1. **Custom Variables & ARCS Motivation Architecture:** Some Next buttons are strategically locked down, meaning the learner must interact with the screen before they can progress (for example, `Char_Select` requires entering a name and choosing a character). Custom variables track Character Selection, Stars (points) collected, Visited Islands, and Visited Terminology—motivating learners and sustaining Attention, Confidence, and Satisfaction (ARCS model).
+2. **Custom Map Navigation:** Custom navigation developed with dynamic object states. Early on, the learner learns how the navigation works and can always return to any island slide using the interactive Map Icon menu.
+3. **Modular Slide Layers (Sweller’s Cognitive Load Theory):** To prevent visual clutter and manage extraneous cognitive load, interactions are architected using modular Storyline Slide Layers rather than cramming instructions, feedback, and scenario states onto a single base timeline:
+   * **Progressive Disclosure:** Each layer isolates a specific phase of the user journey—such as scenario prompts, interactive puzzle states, and targeted remediation—ensuring learners only process relevant visual stimuli at any given moment (Mayer’s Signaling & Segmenting Principles).
+   * **State-Driven Layer Triggers:** Layer visibility is governed by conditional variables and object states, allowing learners to revisit clues or retry alignment without losing progress or breaking narrative flow.
+4. **Custom JavaScript Rotational Physics:** Because Articulate Storyline’s native timeline lacks smooth, cumulative rotational physics, I engineered custom JavaScript triggers (leveraging CSS transforms and GSAP animation properties within the Storyline player) to power the puzzle mechanics:
+   * **Incremental Rotational Alignment:** Each click executes a JavaScript function that calculates and updates the current rotation angle of individual stone puzzle pieces, rotating them smoothly until every piece locks into its target alignment.
+   * **Variable Synchronization:** Once all pieces reach their exact target degrees, JavaScript automatically updates Storyline variables to unlock the next narrative state and trigger completion feedback.
+5. **Audio Sound Effects & Distinct Character Voices:**
+   * **Micro-Feedback (Temporal Contiguity):** Layered subtle physical sound effects—such as the grinding weight of heavy stone shifting into place—synchronized directly with the JavaScript rotation triggers.
+   * **Distinct Character Voice:** Each character was assigned a distinct, conversational voice profile refined for natural pacing and emotional tone so learners immediately distinguish roles, perspectives, and guidance cues.

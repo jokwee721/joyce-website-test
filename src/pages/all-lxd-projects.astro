@@ -1,0 +1,12 @@
+---
+import { getCollection } from 'astro:content';
+import SectionLayout from '../layouts/SectionLayout.astro';
+
+const lxdProjects = await getCollection('projects', ({ data }) => data.category === 'lxd' && data.listed !== false);
+---
+
+<SectionLayout
+  title="All LXD Projects — Joyce Yang"
+  heading="Featured Projects"
+  projects={lxdProjects}
+/>

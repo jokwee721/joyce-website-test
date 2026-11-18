@@ -1,0 +1,121 @@
+---
+---
+
+<footer class="portfolio-footer" role="contentinfo">
+  <div class="portfolio-footer__inner">
+    <div class="footer-left">
+      <span class="footer-name">Joyce Yang</span>
+      <span class="footer-role">Let's build something together.</span>
+    </div>
+
+    <div class="footer-right">
+      <a
+        href="https://www.linkedin.com/in/joyce-yang00/"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="footer-link"
+      >
+        LinkedIn
+      </a>
+      <a href="mailto:joycekyang@gmail.com" class="footer-link">Email</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .portfolio-footer {
+    margin-top: auto;
+    position: relative;
+    width: 100%;
+    padding: 40px 30px;
+    font-size: 13.5px;
+    background: var(--footer-bg);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.78);
+    z-index: 10;
+  }
+
+  .portfolio-footer__inner {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .footer-left {
+    display: flex;
+    gap: 12px;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+
+  .footer-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    font-size: 14.5px;
+  }
+
+  .footer-role {
+    font-size: 12.5px;
+    opacity: 0.68;
+    letter-spacing: 0.3px;
+  }
+
+  .footer-right {
+    display: flex;
+    gap: 26px;
+    align-items: center;
+  }
+
+  .footer-link {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.8);
+    position: relative;
+    transition: color 0.25s ease, text-shadow 0.25s ease;
+    letter-spacing: 0.4px;
+    font-weight: 500;
+  }
+
+  .footer-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -4px;
+    width: 0%;
+    height: 1px;
+    background: #ffffff;
+    transition: width 0.3s ease;
+  }
+
+  .footer-link:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.35);
+  }
+
+  .footer-link:hover::after {
+    width: 100%;
+  }
+
+  @media (max-width: 640px) {
+    .portfolio-footer__inner {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .footer-left {
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .footer-right {
+      justify-content: center;
+    }
+  }
+</style>

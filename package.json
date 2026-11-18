@@ -1,0 +1,23 @@
+{
+  "name": "joyce-yang-portfolio",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "qa:spell": "cspell \"src/**/*.{astro,md,mdx,ts}\" \"*.md\"",
+    "qa:links": "node scripts/qa-check.mjs",
+    "qa": "npm run qa:spell && npm run qa:links && astro build"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.2.0",
+    "astro": "^5.5.0"
+  },
+  "devDependencies": {
+    "cspell": "^8.17.0"
+  }
+}

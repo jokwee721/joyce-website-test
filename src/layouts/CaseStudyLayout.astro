@@ -1,0 +1,475 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import MetaGrid from '../components/MetaGrid.astro';
+import { withBase } from '../utils/url';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+
+const { project } = Astro.props;
+const {
+  title,
+  subtitle,
+  category,
+  description,
+  image,
+  imageAlt,
+  transparentBg = true,
+  tags,
+  launchUrl,
+  launchLabel = 'Launch Experience',
+  secondaryLaunchUrl,
+  secondaryLaunchLabel = 'Launch Course',
+  youtubeEmbedUrl,
+  figmaEmbedUrl,
+  slidesEmbedUrl,
+  accentColor,
+  meta,
+  gallery,
+} = project.data;
+
+const backMap = {
+  lxd: { label: '← Back to Learning Experience Design', href: withBase('/all-lxd-projects') },
+  uxd: { label: '← Back to User Experience Design', href: withBase('/all-ux-projects') },
+  gd: { label: '← Back to Graphic Design', href: withBase('/all-graphic-design') },
+};
+
+const backLink = backMap[category];
+---
+
+<BaseLayout title={`${title} — Joyce Yang`} description={description} showNavbar={true} showFooter={true}>
+  <article
+    class="case-study-wrapper"
+    style={accentColor ? `--primary-blue: ${accentColor};` : undefined}
+  >
+    <div class="case-study-container">
+      <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+        <a href={backLink.href} class="back-link">{backLink.label}</a>
+      </nav>
+
+      <!-- Hero Section (Inspired by uxd.html Esker Billing & Fire Safety) -->
+      <section class="hero-section">
+        <div class="hero-image">
+          <img
+            src={withBase(image)}
+            alt={imageAlt}
+            class={!transparentBg ? 'hero-img--white-bg' : undefined}
+            loading="eager"
+          />
+        </div>
+
+        <div class="hero-content">
+          <h1>{title}</h1>
+          {subtitle && <h2>{subtitle}</h2>}
+          <p>{description}</p>
+
+          <div class="hero-tags" aria-label="Tools Used">
+            {tags.map((tag) => <span class="tag-pill">{tag}</span>)}
+          </div>
+
+          {
+            (launchUrl || secondaryLaunchUrl) && (
+              <div class="hero-cta-row">
+                {launchUrl && (
+                  <a
+                    href={withBase(launchUrl)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="launch-btn"
+                  >
+                    {launchLabel} ↗
+                  </a>
+                )}
+                {secondaryLaunchUrl && (
+                  <a
+                    href={withBase(secondaryLaunchUrl)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="launch-btn launch-btn--secondary"
+                  >
+                    {secondaryLaunchLabel} ↗
+                  </a>
+                )}
+              </div>
+            )
+          }
+        </div>
+      </section>
+
+      <!-- 5-Column Metadata Grid -->
+      {meta && <MetaGrid items={meta} />}
+
+      <!-- Markdown Case Study Body -->
+      <div class="case-study-prose">
+        <slot />
+      </div>
+
+      <!-- Optional Embedded YouTube / Figma Blocks -->
+      {
+        youtubeEmbedUrl && (
+          <section class="embed-section" aria-label="Video Demonstration">
+            <div class="responsive-iframe">
+              <iframe
+                src={youtubeEmbedUrl}
+                title={`${title} Video Demonstration`}
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              />
+            </div>
+          </section>
+        )
+      }
+
+      {
+        figmaEmbedUrl && (
+          <section class="embed-section" aria-label="Interactive Figma Prototype">
+            <h2 class="gallery-heading">Interactive Prototype</h2>
+            <div class="responsive-iframe">
+              <iframe
+                src={figmaEmbedUrl}
+                title={`${title} Interactive Figma Prototype`}
+                loading="lazy"
+                allowfullscreen
+              />
+            </div>
+          </section>
+        )
+      }
+
+      {
+        slidesEmbedUrl && (
+          <section class="embed-section" aria-label="Presentation Deck">
+            <h2 class="gallery-heading">Finalist Presentation Deck</h2>
+            <div class="responsive-iframe">
+              <iframe
+                src={slidesEmbedUrl}
+                title={`${title} Presentation Slides`}
+                loading="lazy"
+                allowfullscreen
+              />
+            </div>
+          </section>
+        )
+      }
+
+      <!-- Optional Visual Gallery -->
+      {
+        gallery && gallery.length > 0 && (
+          <section class="gallery-section" aria-label="Project Screenshots and Visual Artifacts">
+            <h2 class="gallery-heading">Project Visuals &amp; Screens</h2>
+            <div class="gallery-grid">
+              {gallery.map((item) => (
+                <figure class="gallery-item">
+                  <img src={withBase(item.src)} alt={item.alt} loading="lazy" />
+                  {item.caption && <figcaption>{item.caption}</figcaption>}
+                </figure>
+              ))}
+            </div>
+          </section>
+        )
+      }
+
+      <footer class="case-study-bottom-nav">
+        <a href={backLink.href} class="outline-back-btn">{backLink.label}</a>
+      </footer>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .case-study-wrapper {
+    background: var(--bg-surface);
+    padding: 40px 20px 88px 20px;
+  }
+
+  .case-study-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+    padding: 52px 68px;
+  }
+
+  .breadcrumb-nav {
+    margin-bottom: 32px;
+  }
+
+  .back-link {
+    font-family: var(--font-heading);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--primary-blue);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.2s ease;
+  }
+
+  .back-link:hover {
+    transform: translateX(-4px);
+    text-decoration: underline;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items: center;
+    margin-bottom: 48px;
+  }
+
+  .hero-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .hero-image img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 12px;
+    filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.12));
+  }
+
+  .hero-image img.hero-img--white-bg {
+    filter: none;
+    mix-blend-mode: multiply;
+  }
+
+  .hero-content h1 {
+    font-size: clamp(2.1rem, 4vw, 3rem);
+    color: var(--primary-blue);
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.02em;
+    line-height: 1.12;
+  }
+
+  .hero-content h2 {
+    font-size: 1.25rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 20px;
+    line-height: 1.4;
+  }
+
+  .hero-content p {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.78;
+    margin-bottom: 20px;
+  }
+
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .tag-pill {
+    background: var(--primary-blue-soft);
+    color: var(--primary-blue);
+    padding: 5px 14px;
+    border-radius: var(--radius-pill);
+    font-family: var(--font-heading);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  .hero-cta-row {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .launch-btn,
+  .launch-btn--secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: #ffffff;
+    color: var(--primary-blue);
+    border: 2px solid var(--primary-blue);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.92rem;
+    padding: 12px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .launch-btn:hover,
+  .launch-btn--secondary:hover {
+    background: var(--primary-blue);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px var(--primary-blue-shadow);
+  }
+
+  /* Case Study Prose */
+  .case-study-prose {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 40px;
+    font-size: 1.04rem;
+    line-height: 1.8;
+    color: var(--text-main);
+  }
+
+  .case-study-prose :global(h2) {
+    font-size: 1.65rem;
+    color: var(--primary-blue);
+    font-weight: 800;
+    margin: 36px 0 14px 0;
+  }
+
+  .case-study-prose :global(h2:first-child) {
+    margin-top: 0;
+  }
+
+  .case-study-prose :global(h3) {
+    font-size: 1.25rem;
+    color: var(--text-pure-black);
+    font-weight: 700;
+    margin: 28px 0 10px 0;
+  }
+
+  .case-study-prose :global(p) {
+    margin: 0 0 18px 0;
+    color: var(--text-muted);
+  }
+
+  .case-study-prose :global(ul),
+  .case-study-prose :global(ol) {
+    margin: 0 0 24px 0;
+    padding-left: 24px;
+    color: var(--text-muted);
+  }
+
+  .case-study-prose :global(li) {
+    margin-bottom: 12px;
+  }
+
+  .case-study-prose :global(strong) {
+    color: var(--text-pure-black);
+    font-weight: 700;
+  }
+
+  /* Gallery */
+  .gallery-section {
+    margin-top: 48px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .gallery-heading {
+    font-size: 1.5rem;
+    color: var(--primary-blue);
+    font-weight: 800;
+    margin-bottom: 24px;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
+  }
+
+  .gallery-item {
+    margin: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .gallery-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+  }
+
+  .gallery-item figcaption {
+    font-size: 0.88rem;
+    color: var(--text-subtle);
+    text-align: center;
+  }
+
+  /* Responsive Iframe */
+  .embed-section {
+    margin-top: 40px;
+  }
+
+  .responsive-iframe {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+  }
+
+  .responsive-iframe iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .case-study-bottom-nav {
+    margin-top: 56px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .outline-back-btn {
+    border: 1.5px solid var(--primary-blue);
+    color: var(--primary-blue);
+    padding: 11px 22px;
+    border-radius: 8px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.94rem;
+    text-decoration: none;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  .outline-back-btn:hover {
+    background: var(--primary-blue);
+    color: #ffffff;
+  }
+
+  @media (max-width: 1024px) {
+    .case-study-container {
+      padding: 36px 28px;
+    }
+
+    .hero-section {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .case-study-container {
+      padding: 24px 18px;
+    }
+  }
+</style>
