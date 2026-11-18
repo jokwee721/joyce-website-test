@@ -16,7 +16,7 @@ const sortedProjects = [...projects].sort((a, b) => a.data.order - b.data.order)
 
 <BaseLayout title={title} showNavbar={true} showFooter={true}>
   <section class="section-container">
-    <header class="section-header gallery-reveal" data-delay="0">
+    <header class="section-header">
       <h1 class="page-title">{heading}</h1>
       {subtitle && <p class="page-subtitle">{subtitle}</p>}
     </header>
@@ -24,7 +24,10 @@ const sortedProjects = [...projects].sort((a, b) => a.data.order - b.data.order)
     <div class="project-grid">
       {
         sortedProjects.map((project, index) => (
-          <div class="project-grid__item gallery-reveal" data-delay={String((index % 2) * 110)}>
+          <div
+            class={`project-grid__item ${index >= 2 ? 'gallery-reveal' : 'above-fold-card'}`}
+            data-delay={String((index % 2) * 90)}
+          >
             <ProjectCard
               slug={project.id}
               title={project.data.title}
@@ -33,6 +36,7 @@ const sortedProjects = [...projects].sort((a, b) => a.data.order - b.data.order)
               imageAlt={project.data.imageAlt}
               imageWidth={project.data.imageWidth}
               transparentBg={project.data.transparentBg}
+              eager={index < 4}
               tags={project.data.tags}
               ctaLabel={project.data.ctaLabel}
             />
@@ -67,8 +71,8 @@ const sortedProjects = [...projects].sort((a, b) => a.data.order - b.data.order)
         });
       },
       {
-        threshold: 0.1,
-        rootMargin: '0px 0px -30px 0px',
+        threshold: 0.08,
+        rootMargin: '0px 0px -20px 0px',
       }
     );
 
@@ -76,7 +80,6 @@ const sortedProjects = [...projects].sort((a, b) => a.data.order - b.data.order)
   }
 
   initGalleryReveal();
-  document.addEventListener('astro:after-swap', initGalleryReveal);
 </script>
 
 <style>
@@ -119,12 +122,33 @@ const sortedProjects = [...projects].sort((a, b) => a.data.order - b.data.order)
     height: 100%;
   }
 
+  /* Above-the-fold cards render immediately without waiting for JS IntersectionObserver */
+  .above-fold-card {
+    animation: cardSlideIn 0.55s var(--ease-out-expo) both;
+  }
+
+  .above-fold-card:nth-child(2) {
+    animation-delay: 70ms;
+  }
+
+  @keyframes cardSlideIn {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 20px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* Below-the-fold cards reveal smoothly as the user scrolls down */
   .gallery-reveal {
     opacity: 0;
-    transform: translate3d(0, 36px, 0);
+    transform: translate3d(0, 32px, 0);
     transition:
-      opacity 0.75s var(--ease-out-expo),
-      transform 0.75s var(--ease-out-expo);
+      opacity 0.65s var(--ease-out-expo),
+      transform 0.65s var(--ease-out-expo);
     will-change: opacity, transform;
   }
 

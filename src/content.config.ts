@@ -23,6 +23,16 @@ const projects = defineCollection({
     figmaEmbedUrl: z.string().url().optional(),
     youtubeEmbedUrl: z.string().url().optional(),
     slidesEmbedUrl: z.string().url().optional(),
+    videoEmbeds: z
+      .array(
+        z.object({
+          src: z.string().url(),
+          title: z.string(),
+          aspect: z.enum(['landscape', 'vertical']).default('landscape'),
+          caption: z.string().optional(),
+        })
+      )
+      .optional(),
     accentColor: z.string().optional(),
     meta: z
       .array(

@@ -25,6 +25,7 @@ const {
   youtubeEmbedUrl,
   figmaEmbedUrl,
   slidesEmbedUrl,
+  videoEmbeds,
   accentColor,
   meta,
   gallery,
@@ -57,6 +58,8 @@ const backLink = backMap[category];
             alt={imageAlt}
             class={!transparentBg ? 'hero-img--white-bg' : undefined}
             loading="eager"
+            fetchpriority="high"
+            decoding="async"
           />
         </div>
 
@@ -105,6 +108,34 @@ const backLink = backMap[category];
       <div class="case-study-prose">
         <slot />
       </div>
+
+      <!-- Optional Google Drive / External Video Embeds -->
+      {
+        videoEmbeds && videoEmbeds.length > 0 && (
+          <section class="embed-section" aria-label="Project Video Demonstrations">
+            <h2 class="gallery-heading">Video Demonstrations</h2>
+            <div class="video-embeds-grid">
+              {videoEmbeds.map((vid) => (
+                <figure
+                  class={`video-embed-card ${vid.aspect === 'vertical' ? 'video-embed-card--vertical' : ''}`}
+                  data-video-src={vid.src}
+                >
+                  <div class={`responsive-iframe ${vid.aspect === 'vertical' ? 'responsive-iframe--vertical' : ''}`}>
+                    <iframe
+                      src={vid.src}
+                      title={vid.title}
+                      loading="lazy"
+                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+                      allowfullscreen
+                    />
+                  </div>
+                  {vid.caption && <figcaption class="video-embed-caption">{vid.caption}</figcaption>}
+                </figure>
+              ))}
+            </div>
+          </section>
+        )
+      }
 
       <!-- Optional Embedded YouTube / Figma Blocks -->
       {
@@ -161,12 +192,27 @@ const backLink = backMap[category];
           <section class="gallery-section" aria-label="Project Screenshots and Visual Artifacts">
             <h2 class="gallery-heading">Project Visuals &amp; Screens</h2>
             <div class="gallery-grid">
-              {gallery.map((item) => (
-                <figure class="gallery-item">
-                  <img src={withBase(item.src)} alt={item.alt} loading="lazy" />
-                  {item.caption && <figcaption>{item.caption}</figcaption>}
-                </figure>
-              ))}
+              {gallery.map((item) => {
+                const fullSrc = withBase(item.src);
+                return (
+                  <figure class="gallery-item">
+                    <a
+                      href={fullSrc}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="gallery-zoom-trigger"
+                      data-full-src={fullSrc}
+                      data-alt={item.alt}
+                      data-caption={item.caption || ''}
+                      aria-label={`Enlarge image: ${item.alt}`}
+                    >
+                      <img src={fullSrc} alt={item.alt} loading="lazy" decoding="async" />
+                      <span class="zoom-badge" aria-hidden="true">Enlarge ⤢</span>
+                    </a>
+                    {item.caption && <figcaption>{item.caption}</figcaption>}
+                  </figure>
+                );
+              })}
             </div>
           </section>
         )
@@ -176,8 +222,166 @@ const backLink = backMap[category];
         <a href={backLink.href} class="outline-back-btn">{backLink.label}</a>
       </footer>
     </div>
+
+    <!-- Natural-Resolution Lightbox Modal -->
+    <div
+      id="gallery-lightbox"
+      class="lightbox-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Enlarged Project Visual"
+      hidden
+    >
+      <div class="lightbox-toolbar">
+        <a
+          id="lightbox-new-tab"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="lightbox-action-btn"
+        >
+          Open in New Tab ↗
+        </a>
+        <button
+          id="lightbox-close"
+          type="button"
+          class="lightbox-close-btn"
+          aria-label="Close enlarged image (Esc)"
+        >
+          ✕ Close
+        </button>
+      </div>
+
+      <figure class="lightbox-figure">
+        <img id="lightbox-img" src="" alt="" class="lightbox-img" />
+        <figcaption id="lightbox-caption" class="lightbox-caption"></figcaption>
+      </figure>
+    </div>
   </article>
 </BaseLayout>
+
+<script>
+  /**
+   * Automatically detects the native aspect ratio (vertical vs. landscape & exact width/height)
+   * of Google Drive video embeds via Google Drive's thumbnail endpoint so videos never show huge black bars.
+   */
+  function autoSizeVideoEmbeds() {
+    const cards = document.querySelectorAll<HTMLElement>('.video-embed-card[data-video-src]');
+    cards.forEach((card) => {
+      const src = card.dataset.videoSrc || '';
+      const match = src.match(/\/file\/d\/([^/]+)/);
+      if (!match) return;
+
+      const fileId = match[1];
+      const frameBox = card.querySelector<HTMLElement>('.responsive-iframe');
+      if (!frameBox) return;
+
+      const probe = new Image();
+      probe.onload = () => {
+        if (probe.naturalWidth > 0 && probe.naturalHeight > 0) {
+          const isVertical = probe.naturalHeight > probe.naturalWidth;
+          card.classList.toggle('video-embed-card--vertical', isVertical);
+          frameBox.classList.toggle('responsive-iframe--vertical', isVertical);
+          frameBox.style.paddingBottom = `${((probe.naturalHeight / probe.naturalWidth) * 100).toFixed(2)}%`;
+        }
+      };
+      probe.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+    });
+  }
+
+  autoSizeVideoEmbeds();
+
+  /**
+   * Natural-Resolution Lightbox for Project Visuals & Screens:
+   * - Opens on click (while preserving Cmd/Ctrl+Click to open in a new tab).
+   * - Caps image display width/height at 100% of its native pixel resolution so it never stretches or blurs.
+   */
+  function initGalleryLightbox() {
+    const lightbox = document.getElementById('gallery-lightbox');
+    const lightboxImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const lightboxNewTab = document.getElementById('lightbox-new-tab') as HTMLAnchorElement | null;
+    const closeBtn = document.getElementById('lightbox-close');
+    const triggers = document.querySelectorAll<HTMLAnchorElement>('.gallery-zoom-trigger');
+
+    if (!lightbox || !lightboxImg || !triggers.length) return;
+
+    // Mount at document.body root so the modal always layers above sticky headers
+    if (lightbox.parentElement !== document.body) {
+      document.body.appendChild(lightbox);
+    }
+
+    function openLightbox(src: string, alt: string, caption: string, thumbImg?: HTMLImageElement | null) {
+      if (!lightbox || !lightboxImg) return;
+
+      // Apply natural resolution cap immediately if thumbnail is already loaded
+      if (thumbImg && thumbImg.naturalWidth > 0) {
+        lightboxImg.style.maxWidth = `min(92vw, ${thumbImg.naturalWidth}px)`;
+        lightboxImg.style.maxHeight = `min(82vh, ${thumbImg.naturalHeight}px)`;
+      } else {
+        lightboxImg.style.maxWidth = '92vw';
+        lightboxImg.style.maxHeight = '82vh';
+      }
+
+      lightboxImg.onload = () => {
+        if (lightboxImg.naturalWidth > 0) {
+          lightboxImg.style.maxWidth = `min(92vw, ${lightboxImg.naturalWidth}px)`;
+          lightboxImg.style.maxHeight = `min(82vh, ${lightboxImg.naturalHeight}px)`;
+        }
+      };
+
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      if (lightboxCaption) {
+        lightboxCaption.textContent = caption || alt;
+      }
+      if (lightboxNewTab) {
+        lightboxNewTab.href = src;
+      }
+
+      lightbox.hidden = false;
+      document.body.style.overflow = 'hidden';
+      closeBtn?.focus();
+    }
+
+    function closeLightbox() {
+      if (!lightbox || !lightboxImg) return;
+      lightbox.hidden = true;
+      lightboxImg.src = '';
+      document.body.style.overflow = '';
+    }
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener('click', (e) => {
+        // Allow Cmd/Ctrl+Click or middle-click to open directly in a new tab
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+        e.preventDefault();
+        const src = trigger.dataset.fullSrc || trigger.href;
+        const alt = trigger.dataset.alt || '';
+        const caption = trigger.dataset.caption || '';
+        const thumbImg = trigger.querySelector('img');
+        openLightbox(src, alt, caption, thumbImg);
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeLightbox);
+
+    lightbox.addEventListener('click', (e) => {
+      // Close when clicking the dark backdrop outside the image/toolbar
+      if (e.target === lightbox || (e.target as HTMLElement).classList.contains('lightbox-figure')) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lightbox.hidden) {
+        closeLightbox();
+      }
+    });
+  }
+
+  initGalleryLightbox();
+</script>
 
 <style>
   .case-study-wrapper {
@@ -394,6 +598,22 @@ const backLink = backMap[category];
     display: flex;
     flex-direction: column;
     gap: 10px;
+    transition: transform 0.25s var(--ease-smooth), box-shadow 0.25s var(--ease-smooth), border-color 0.25s ease;
+  }
+
+  .gallery-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card);
+    border-color: rgba(51, 33, 255, 0.25);
+  }
+
+  .gallery-zoom-trigger {
+    position: relative;
+    display: block;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: zoom-in;
+    text-decoration: none;
   }
 
   .gallery-item img {
@@ -401,6 +621,35 @@ const backLink = backMap[category];
     height: auto;
     border-radius: 8px;
     display: block;
+    transition: transform 0.35s var(--ease-smooth);
+  }
+
+  .gallery-zoom-trigger:hover img {
+    transform: scale(1.015);
+  }
+
+  .zoom-badge {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(6px);
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 999px;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .gallery-zoom-trigger:hover .zoom-badge,
+  .gallery-zoom-trigger:focus-visible .zoom-badge {
+    opacity: 1;
+    transform: translateY(0);
   }
 
   .gallery-item figcaption {
@@ -409,18 +658,141 @@ const backLink = backMap[category];
     text-align: center;
   }
 
-  /* Responsive Iframe */
+  /* Natural-Resolution Lightbox Modal */
+  .lightbox-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(10, 12, 20, 0.92);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .lightbox-backdrop[hidden] {
+    display: none !important;
+  }
+
+  @keyframes fadeInLightbox {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .lightbox-toolbar {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2001;
+  }
+
+  .lightbox-action-btn,
+  .lightbox-close-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    color: #ffffff;
+    font-family: var(--font-heading);
+    font-size: 13.5px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .lightbox-action-btn:hover,
+  .lightbox-close-btn:hover {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+  }
+
+  .lightbox-figure {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    max-width: 92vw;
+    max-height: 88vh;
+  }
+
+  .lightbox-img {
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+    background: #ffffff;
+  }
+
+  .lightbox-caption {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 0.95rem;
+    text-align: center;
+    max-width: 720px;
+  }
+
+  /* Responsive Iframe & Video Embeds */
   .embed-section {
     margin-top: 40px;
+    padding-top: 36px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .video-embeds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 28px;
+    align-items: start;
+  }
+
+  .video-embed-card {
+    margin: 0;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .video-embed-card--vertical {
+    max-width: 420px;
+    width: 100%;
+    justify-self: center;
+  }
+
+  .video-embed-caption {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
   }
 
   .responsive-iframe {
     position: relative;
     width: 100%;
     padding-bottom: 56.25%;
-    border-radius: 14px;
+    border-radius: 12px;
     overflow: hidden;
     box-shadow: var(--shadow-card);
+    background: #0f172a;
+  }
+
+  .responsive-iframe--vertical {
+    padding-bottom: 177.78%;
   }
 
   .responsive-iframe iframe {

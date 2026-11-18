@@ -68,6 +68,9 @@ joyce-website/
    * When the user wants a custom accent color or bespoke interactive block on **only one project page** (e.g., `/firesafety`), set `accentColor` in that project's `.mdx` frontmatter or import a dedicated component inside that `.mdx` file—leaving every other page untouched.
 
 ### C. Smart Question Protocol & Cross-Page Parallelism Audit (SOP)
+* **Never Download Videos Into the Repo or Over-Engineer Missing Content (Ask the User for Links):**
+  * **Videos must NEVER be downloaded into the Git repository** (to prevent repo bloat and slow builds). All videos must be embedded via external **YouTube** or **Google Drive** links (`youtubeEmbedUrl` in `.mdx` frontmatter).
+  * If a video, image, PDF, or text block is missing or hosted inside Squarespace's native video player, **NEVER install tools (like `ffmpeg`) or download video files**. Simply ask the user for the **Google Drive or YouTube URL** (or original image file).
 * **Always Flag Inconsistencies Across Sibling Pages/Components:**
   * During **Pass 1 (UX/Visual Designer)** and **Pass 4 (General QA)**, agents must explicitly audit **Cross-Page Parallelism**: compare page `<h1>` headings, browser `<title>` tags, Navbar dropdown labels, card CTA labels, and metadata labels across all sibling pages/sections (`LXD`, `UXD`, `Graphic Design`, and Case Studies).
   * **Never blindly copy legacy inconsistencies** from old HTML/Squarespace pages without questioning them.

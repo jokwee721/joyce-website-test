@@ -2,10 +2,13 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 
 // Note: Do NOT hardcode `site` or `base` here.
-// When deployed via `.github/workflows/deploy.yml`, `withastro/action@v3`
-// automatically detects your GitHub Pages URL and repository path.
+// `.github/workflows/deploy.yml` passes `--site` and `--base` automatically.
 export default defineConfig({
   integrations: [mdx()],
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'hover',
+  },
   build: {
     format: 'directory',
   },

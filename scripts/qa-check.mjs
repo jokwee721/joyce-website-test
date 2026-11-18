@@ -71,13 +71,13 @@ function scanDir(dir) {
         fail(`${rel} still references an external CDN image instead of local public/images/.`);
       }
 
-      // Verify local /images/... files exist in public/
-      const imgRegex = /["'](\/images\/[^"']+)["']/g;
-      let imgMatch;
-      while ((imgMatch = imgRegex.exec(content)) !== null) {
-        const publicFile = path.join(ROOT, 'public', imgMatch[1]);
+      // Verify local /images/... and /videos/... files exist in public/
+      const assetRegex = /["'](\/(?:images|videos)\/[^"']+)["']/g;
+      let assetMatch;
+      while ((assetMatch = assetRegex.exec(content)) !== null) {
+        const publicFile = path.join(ROOT, 'public', assetMatch[1]);
         if (!fs.existsSync(publicFile)) {
-          fail(`${rel} references missing local image "${imgMatch[1]}"`);
+          fail(`${rel} references missing local media asset "${assetMatch[1]}"`);
         }
       }
 
@@ -86,7 +86,7 @@ function scanDir(dir) {
       let match;
       while ((match = hrefRegex.exec(content)) !== null) {
         const target = match[1].replace(/\/$/, '') || '/';
-        if (!target.startsWith('/images/') && !target.startsWith('/resume/') && !target.startsWith('/favicon') && !validRoutes.has(target)) {
+        if (!target.startsWith('/images/') && !target.startsWith('/videos/') && !target.startsWith('/resume/') && !target.startsWith('/favicon') && !validRoutes.has(target)) {
           fail(`${rel} links to unknown internal route "${target}"`);
         }
       }

@@ -63,6 +63,8 @@ From that moment on, every time you `git push` to `main`, GitHub Actions automat
 | **Articulate Storyline / Rise / Captivate Courses** | Host the exported Storyline/Rise web folder in its own dedicated GitHub Pages repo (like `joycekyang.github.io/FireSafetyTraining/`) or Articulate Review link, and set `launchUrl` in the project's `.mdx` file. | *"Add a Launch Experience button pointing to `https://joycekyang.github.io/MyNewCourse/` on this project page."* |
 | **Figma Interactive Prototypes** | Set `figmaEmbedUrl` in the project's `.mdx` frontmatter (or embed via `<iframe>`). | *"Embed my Figma prototype URL on the WeConcile case study page."* |
 
+> **Rule for AI Agents When Media Is Missing:** Never use complex conversion tools (like `ffmpeg`) or workarounds to extract missing media. Always ask the user for their original file and tell them which `public/` folder to drop it into.
+
 ---
 
 ## 4. How to Add Content (Projects, Links, Sections, Pages)

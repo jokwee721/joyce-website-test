@@ -9,6 +9,7 @@ interface Props {
   imageAlt: string;
   imageWidth?: number;
   transparentBg?: boolean;
+  eager?: boolean;
   tags: string[];
   ctaLabel?: string;
 }
@@ -21,6 +22,7 @@ const {
   imageAlt,
   imageWidth,
   transparentBg = true,
+  eager = false,
   tags,
   ctaLabel = 'View Case Study Details',
 } = Astro.props;
@@ -36,7 +38,9 @@ const imgSrc = withBase(image);
       alt={imageAlt}
       class={`laptop-img ${!transparentBg ? 'laptop-img--white-bg' : ''}`}
       style={imageWidth ? `width: ${imageWidth}px; max-width: 100%;` : undefined}
-      loading="lazy"
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : 'auto'}
+      decoding="async"
     />
   </div>
 
@@ -92,13 +96,13 @@ const imgSrc = withBase(image);
     border-radius: var(--radius-md);
     margin-bottom: 12px;
     width: 100%;
-    min-height: 220px;
+    height: 270px;
   }
 
   .laptop-img {
     height: auto;
     max-width: 100%;
-    max-height: 310px;
+    max-height: 260px;
     object-fit: contain;
     display: inline-block;
     transition: transform 0.4s var(--ease-smooth), filter 0.4s var(--ease-smooth);
@@ -197,6 +201,14 @@ const imgSrc = withBase(image);
   @media (max-width: 640px) {
     .project-card {
       padding: 28px 22px;
+    }
+
+    .image-wrapper {
+      height: 210px;
+    }
+
+    .laptop-img {
+      max-height: 200px;
     }
 
     .project-title {
