@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import MetaGrid from '../components/MetaGrid.astro';
+import ProjectCarousel, { type CarouselSlide } from '../components/ProjectCarousel.astro';
 import { withBase } from '../utils/url';
 import type { CollectionEntry } from 'astro:content';
 
@@ -22,14 +23,72 @@ const {
   launchLabel = 'Launch Experience',
   secondaryLaunchUrl,
   secondaryLaunchLabel = 'Launch Course',
+  extraLaunchLinks,
   youtubeEmbedUrl,
   figmaEmbedUrl,
   slidesEmbedUrl,
+  slidesLabel = 'Presentation Deck',
   videoEmbeds,
   accentColor,
   meta,
   gallery,
+  takeaways,
 } = project.data;
+
+const isUxdFlow = category === 'uxd';
+
+const carouselSlides: CarouselSlide[] = [
+  ...(isUxdFlow
+    ? [
+        {
+          kind: 'image' as const,
+          src: image,
+          alt: imageAlt,
+          label: 'App Showcase',
+          transparentBg,
+        },
+      ]
+    : []),
+  ...(gallery || []).map((item) => ({
+    kind: 'image' as const,
+    src: item.src,
+    alt: item.alt,
+    label: item.label,
+    caption: item.caption,
+  })),
+  ...(videoEmbeds || []).map((vid) => ({
+    kind: 'embed' as const,
+    src: vid.src,
+    alt: vid.title,
+    label: vid.title,
+    caption: vid.caption,
+    aspect: vid.aspect,
+  })),
+  ...(youtubeEmbedUrl
+    ? [
+        {
+          kind: 'embed' as const,
+          src: youtubeEmbedUrl,
+          alt: `${title} Video Walkthrough`,
+          label: 'Video Walkthrough',
+          caption: 'Watch the walkthrough of this project.',
+        },
+      ]
+    : []),
+  ...(slidesEmbedUrl
+    ? [
+        {
+          kind: 'embed' as const,
+          src: slidesEmbedUrl,
+          alt: `${title} Presentation Slides`,
+          label: slidesLabel,
+          caption: 'Click through the embedded presentation deck.',
+          externalUrl: secondaryLaunchUrl,
+          externalLabel: secondaryLaunchLabel,
+        },
+      ]
+    : []),
+];
 
 const backMap = {
   lxd: { label: '← Back to Learning Experience Design', href: withBase('/all-lxd-projects') },
@@ -42,122 +101,133 @@ const backLink = backMap[category];
 
 <BaseLayout title={`${title} — Joyce Yang`} description={description} showNavbar={true} showFooter={true}>
   <article
-    class="case-study-wrapper"
+    class={`case-study-wrapper ${isUxdFlow ? 'case-study-wrapper--uxd' : ''}`}
     style={accentColor ? `--primary-blue: ${accentColor};` : undefined}
   >
-    <div class="case-study-container">
-      <nav class="breadcrumb-nav" aria-label="Breadcrumb">
-        <a href={backLink.href} class="back-link">{backLink.label}</a>
-      </nav>
-
-      <!-- Hero Section (Inspired by uxd.html Esker Billing & Fire Safety) -->
-      <section class="hero-section">
-        <div class="hero-image">
-          <img
-            src={withBase(image)}
-            alt={imageAlt}
-            class={!transparentBg ? 'hero-img--white-bg' : undefined}
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-          />
-        </div>
-
-        <div class="hero-content">
-          <h1>{title}</h1>
-          {subtitle && <h2>{subtitle}</h2>}
-          <p>{description}</p>
-
-          <div class="hero-tags" aria-label="Tools Used">
-            {tags.map((tag) => <span class="tag-pill">{tag}</span>)}
-          </div>
-
+    <div class={`case-study-container ${isUxdFlow ? 'case-study-container--uxd' : ''}`}>
+      {/* 1. Hero / Title Header Section (LXD & GD: Clean Desktop Cover Band with MetaGrid + Minimal Scroll Chevron) */}
+      <div class={!isUxdFlow ? 'case-study-cover' : ''}>
+        <section class={`hero-section ${isUxdFlow ? 'hero-section--uxd-compact' : ''}`}>
           {
-            (launchUrl || secondaryLaunchUrl) && (
-              <div class="hero-cta-row">
-                {launchUrl && (
-                  <a
-                    href={withBase(launchUrl)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="launch-btn"
-                  >
-                    {launchLabel} ↗
-                  </a>
-                )}
-                {secondaryLaunchUrl && (
-                  <a
-                    href={withBase(secondaryLaunchUrl)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="launch-btn launch-btn--secondary"
-                  >
-                    {secondaryLaunchLabel} ↗
-                  </a>
-                )}
+            !isUxdFlow && (
+              <div class="hero-image">
+                <a
+                  href={withBase(image)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hero-image-zoom gallery-zoom-trigger"
+                  data-full-src={withBase(image)}
+                  data-alt={imageAlt}
+                  data-caption=""
+                  aria-label={`Enlarge image: ${imageAlt}`}
+                >
+                  <img
+                    src={withBase(image)}
+                    alt={imageAlt}
+                    class={!transparentBg ? 'hero-img--white-bg' : undefined}
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                  />
+                </a>
               </div>
             )
           }
+
+          <div class="hero-content">
+            <h1>{title}</h1>
+            {subtitle && <h2>{subtitle}</h2>}
+            <p>{description}</p>
+
+            <div class={`hero-tags ${isUxdFlow ? 'hero-tags--uxd-row' : ''}`} aria-label="Skills and Tools Used">
+              {tags.map((tag) => <span class="tag-pill">{tag}</span>)}
+            </div>
+
+            {
+              !isUxdFlow && (launchUrl || secondaryLaunchUrl || (extraLaunchLinks && extraLaunchLinks.length > 0)) && (
+                <div class="hero-cta-row">
+                  {launchUrl && (
+                    <a
+                      href={withBase(launchUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="launch-btn"
+                    >
+                      {launchLabel} ↗
+                    </a>
+                  )}
+                  {secondaryLaunchUrl && (
+                    <a
+                      href={withBase(secondaryLaunchUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="launch-btn launch-btn--secondary"
+                    >
+                      {secondaryLaunchLabel} ↗
+                    </a>
+                  )}
+                  {extraLaunchLinks?.map((link) => (
+                    <a
+                      href={withBase(link.url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="launch-btn launch-btn--secondary"
+                    >
+                      {link.label} ↗
+                    </a>
+                  ))}
+                </div>
+              )
+            }
+          </div>
+        </section>
+
+        {/* 2. UXD Flow: Sleek Full-Width App Showcase Carousel Directly Below Title */}
+        {isUxdFlow && carouselSlides.length > 0 && (
+          <ProjectCarousel slides={carouselSlides} projectTitle={title} defaultLabel="App Showcase" />
+        )}
+
+        <!-- 5-Column Metadata Highlight Grid -->
+        {meta && (
+          <div class={isUxdFlow ? 'scroll-chapter' : ''} data-scroll-reveal={isUxdFlow ? '' : undefined}>
+            <MetaGrid items={meta} />
+          </div>
+        )}
+      </div>
+
+      {/* 2B. LXD & Graphic Design Flow: Visual & Video Carousel After Cover Band, Before Overview */}
+      {!isUxdFlow && carouselSlides.length > 0 && (
+        <div id="case-study-next" class="case-study-chapter case-study-chapter--carousel" data-scroll-reveal>
+          <ProjectCarousel slides={carouselSlides} projectTitle={title} defaultLabel="Project Visuals" />
         </div>
-      </section>
+      )}
 
-      <!-- 5-Column Metadata Grid -->
-      {meta && <MetaGrid items={meta} />}
-
-      <!-- Markdown Case Study Body -->
-      <div class="case-study-prose">
+      <!-- Markdown Case Study Body (Overview & Details) -->
+      <div
+        id={!isUxdFlow && carouselSlides.length === 0 ? 'case-study-next' : undefined}
+        class="case-study-prose case-study-chapter"
+        data-scroll-reveal
+      >
         <slot />
       </div>
 
-      <!-- Optional Google Drive / External Video Embeds -->
-      {
-        videoEmbeds && videoEmbeds.length > 0 && (
-          <section class="embed-section" aria-label="Project Video Demonstrations">
-            <h2 class="gallery-heading">Video Demonstrations</h2>
-            <div class="video-embeds-grid">
-              {videoEmbeds.map((vid) => (
-                <figure
-                  class={`video-embed-card ${vid.aspect === 'vertical' ? 'video-embed-card--vertical' : ''}`}
-                  data-video-src={vid.src}
-                >
-                  <div class={`responsive-iframe ${vid.aspect === 'vertical' ? 'responsive-iframe--vertical' : ''}`}>
-                    <iframe
-                      src={vid.src}
-                      title={vid.title}
-                      loading="lazy"
-                      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-                      allowfullscreen
-                    />
-                  </div>
-                  {vid.caption && <figcaption class="video-embed-caption">{vid.caption}</figcaption>}
-                </figure>
-              ))}
-            </div>
-          </section>
-        )
-      }
-
-      <!-- Optional Embedded YouTube / Figma Blocks -->
-      {
-        youtubeEmbedUrl && (
-          <section class="embed-section" aria-label="Video Demonstration">
-            <div class="responsive-iframe">
-              <iframe
-                src={youtubeEmbedUrl}
-                title={`${title} Video Demonstration`}
-                loading="lazy"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-              />
-            </div>
-          </section>
-        )
-      }
-
+      {/* 3. Interactive Figma Prototype Right After Overview & User Flows (Owns its Launch CTA on UXD) */}
       {
         figmaEmbedUrl && (
-          <section class="embed-section" aria-label="Interactive Figma Prototype">
-            <h2 class="gallery-heading">Interactive Prototype</h2>
+          <section class="embed-section case-study-chapter" aria-label="Interactive Figma Prototype" data-scroll-reveal>
+            <div class="section-header-row">
+              <h2 class="gallery-heading">Interactive Prototype</h2>
+              {isUxdFlow && launchUrl && (
+                <a
+                  href={withBase(launchUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="launch-btn launch-btn--inline"
+                >
+                  {launchLabel} ↗
+                </a>
+              )}
+            </div>
             <div class="responsive-iframe">
               <iframe
                 src={figmaEmbedUrl}
@@ -170,49 +240,15 @@ const backLink = backMap[category];
         )
       }
 
+      {/* 4. Takeaways at the Very End */}
       {
-        slidesEmbedUrl && (
-          <section class="embed-section" aria-label="Presentation Deck">
-            <h2 class="gallery-heading">Finalist Presentation Deck</h2>
-            <div class="responsive-iframe">
-              <iframe
-                src={slidesEmbedUrl}
-                title={`${title} Presentation Slides`}
-                loading="lazy"
-                allowfullscreen
-              />
-            </div>
-          </section>
-        )
-      }
-
-      <!-- Optional Visual Gallery -->
-      {
-        gallery && gallery.length > 0 && (
-          <section class="gallery-section" aria-label="Project Screenshots and Visual Artifacts">
-            <h2 class="gallery-heading">Project Visuals &amp; Screens</h2>
-            <div class="gallery-grid">
-              {gallery.map((item) => {
-                const fullSrc = withBase(item.src);
-                return (
-                  <figure class="gallery-item">
-                    <a
-                      href={fullSrc}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="gallery-zoom-trigger"
-                      data-full-src={fullSrc}
-                      data-alt={item.alt}
-                      data-caption={item.caption || ''}
-                      aria-label={`Enlarge image: ${item.alt}`}
-                    >
-                      <img src={fullSrc} alt={item.alt} loading="lazy" decoding="async" />
-                      <span class="zoom-badge" aria-hidden="true">Enlarge ⤢</span>
-                    </a>
-                    {item.caption && <figcaption>{item.caption}</figcaption>}
-                  </figure>
-                );
-              })}
+        takeaways && takeaways.length > 0 && (
+          <section class="takeaways-section case-study-chapter" aria-label="Project Takeaways" data-scroll-reveal>
+            <h2 class="gallery-heading">Takeaways</h2>
+            <div class="takeaways-prose">
+              {takeaways.map((paragraph) => (
+                <p>{paragraph}</p>
+              ))}
             </div>
           </section>
         )
@@ -380,13 +416,47 @@ const backLink = backMap[category];
     });
   }
 
+  function initScrollExperience() {
+    // Buttery scroll-triggered micro-reveals for below-the-fold chapters
+    const revealItems = document.querySelectorAll<HTMLElement>('[data-scroll-reveal]');
+    if (!revealItems.length) return;
+
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced || !('IntersectionObserver' in window)) {
+      revealItems.forEach((el) => el.classList.add('is-revealed'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    revealItems.forEach((el) => {
+      el.classList.add('reveal-ready');
+      observer.observe(el);
+    });
+  }
+
   initGalleryLightbox();
+  initScrollExperience();
 </script>
 
 <style>
   .case-study-wrapper {
     background: var(--bg-surface);
     padding: 40px 20px 88px 20px;
+  }
+
+  .case-study-wrapper--uxd {
+    padding-top: 20px;
   }
 
   .case-study-container {
@@ -396,6 +466,10 @@ const backLink = backMap[category];
     border-radius: 20px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
     padding: 52px 68px;
+  }
+
+  .case-study-container--uxd {
+    padding: 32px 60px 52px 60px;
   }
 
   .breadcrumb-nav {
@@ -427,10 +501,87 @@ const backLink = backMap[category];
     margin-bottom: 48px;
   }
 
+  .hero-section--uxd-compact {
+    display: block;
+    margin-bottom: 18px;
+  }
+
+  .hero-section--uxd-compact .hero-content {
+    width: 100%;
+    max-width: 860px;
+  }
+
+  .hero-section--uxd-compact .hero-content h1 {
+    font-size: clamp(1.9rem, 3.4vw, 2.5rem);
+    margin-bottom: 6px;
+  }
+
+  .hero-section--uxd-compact .hero-content h2 {
+    font-size: 1.06rem;
+    margin-bottom: 8px;
+  }
+
+  .hero-section--uxd-compact .hero-content p {
+    font-size: 0.98rem;
+    line-height: 1.55;
+    margin-bottom: 0;
+  }
+
+  .hero-tags--uxd-row {
+    margin-top: 12px;
+    margin-bottom: 0;
+  }
+
+  .section-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .section-header-row .gallery-heading {
+    margin: 0;
+  }
+
+  .launch-btn--inline {
+    padding: 9px 18px;
+    font-size: 0.88rem;
+    border-radius: 9px;
+  }
+
+  /* Takeaways Section (Bottom of UXD Flow) */
+  .takeaways-section {
+    margin-top: 48px;
+    padding-top: 36px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .takeaways-prose p {
+    font-size: 1.04rem;
+    line-height: 1.8;
+    color: var(--text-muted);
+    margin: 0 0 18px 0;
+  }
+
+  .takeaways-prose p:last-child {
+    margin-bottom: 0;
+  }
+
   .hero-image {
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .hero-image-zoom {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    cursor: zoom-in;
+    text-decoration: none;
   }
 
   .hero-image img {
@@ -439,6 +590,88 @@ const backLink = backMap[category];
     object-fit: contain;
     border-radius: 12px;
     filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.12));
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hero-image-zoom:hover img {
+    transform: scale(1.018);
+  }
+
+  /* Desktop First-Screen Cover Band + Native Proximity Snap (Zero Scroll-Hijacking, Desktop Only) */
+  @media (min-width: 1024px) and (min-height: 760px) {
+    :global(html) {
+      scroll-snap-type: y proximity;
+      scroll-behavior: smooth;
+    }
+
+    .case-study-wrapper:not(.case-study-wrapper--uxd) {
+      padding-top: 24px;
+    }
+
+    .case-study-container:not(.case-study-container--uxd) {
+      padding-top: 36px;
+    }
+
+    .case-study-cover {
+      min-height: calc(100vh - 156px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      scroll-snap-align: start;
+      scroll-margin-top: 120px;
+    }
+
+    .case-study-cover .hero-section {
+      margin-bottom: 24px;
+    }
+
+    .case-study-cover .hero-image img {
+      max-height: 360px;
+    }
+
+    .case-study-cover :global(.meta-grid) {
+      margin: 0;
+      padding: 20px 0 0 0;
+    }
+
+    .case-study-chapter--carousel {
+      scroll-snap-align: start;
+    }
+  }
+
+  /* Distinct Visual Chapter Rhythm & Buttery Scroll Micro-Reveals */
+  .case-study-chapter--carousel {
+    scroll-margin-top: 96px;
+    padding-top: 40px;
+    margin-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .case-study-prose.case-study-chapter {
+    scroll-margin-top: 96px;
+  }
+
+  [data-scroll-reveal].reveal-ready {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-scroll-reveal].reveal-ready.is-revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html) {
+      scroll-snap-type: none;
+      scroll-behavior: auto;
+    }
+    [data-scroll-reveal].reveal-ready {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 
   .hero-image img.hero-img--white-bg {
@@ -509,7 +742,9 @@ const backLink = backMap[category];
     padding: 12px 20px;
     border-radius: 10px;
     text-decoration: none;
-    white-space: nowrap;
+    max-width: 100%;
+    text-align: center;
+    white-space: normal;
     transition: transform 0.25s ease, background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
   }
 
@@ -829,8 +1064,9 @@ const backLink = backMap[category];
   }
 
   @media (max-width: 1024px) {
-    .case-study-container {
-      padding: 36px 28px;
+    .case-study-container,
+    .case-study-container--uxd {
+      padding: 32px 28px;
     }
 
     .hero-section {
@@ -840,7 +1076,8 @@ const backLink = backMap[category];
   }
 
   @media (max-width: 600px) {
-    .case-study-container {
+    .case-study-container,
+    .case-study-container--uxd {
       padding: 24px 18px;
     }
   }

@@ -20,9 +20,18 @@ const projects = defineCollection({
     launchLabel: z.string().optional(),
     secondaryLaunchUrl: z.string().optional(),
     secondaryLaunchLabel: z.string().optional(),
+    extraLaunchLinks: z
+      .array(
+        z.object({
+          url: z.string(),
+          label: z.string(),
+        })
+      )
+      .optional(),
     figmaEmbedUrl: z.string().url().optional(),
     youtubeEmbedUrl: z.string().url().optional(),
     slidesEmbedUrl: z.string().url().optional(),
+    slidesLabel: z.string().optional(),
     videoEmbeds: z
       .array(
         z.object({
@@ -47,10 +56,12 @@ const projects = defineCollection({
         z.object({
           src: z.string(),
           alt: z.string(),
+          label: z.string().optional(),
           caption: z.string().optional(),
         })
       )
       .optional(),
+    takeaways: z.array(z.string()).optional(),
   }),
 });
 

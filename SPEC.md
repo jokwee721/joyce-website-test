@@ -85,22 +85,25 @@ joyce-website/
 
 ---
 
-## 4. The 6-Lens Review System (With Proportional Fast-Track Mode)
+## 4. The 6-Lens Review System (2-Tier QA Policy)
 
-* **Fast-Track Mode (Minor Edits: fixing copy, adding a link, swapping an image, small style tweak):** Run `npm.cmd run qa` and output a compact 1-line-per-pass scorecard so small edits finish in seconds.
-* **Full Review Mode (Major Work: new page, new case study, new animation, layout redesign):** Evaluate across all 6 lenses:
+* **Tier 1 — Fast Iteration Mode (Default for live back-and-forth CSS, layout, copy, or single-project tweaks):**
+  * **Skip the browser subagent** (the user already has `http://localhost:4321` open live via Vite HMR).
+  * Run only the fast ~3-second CLI checks (`npm.cmd run qa:spell; npm.cmd run qa:links`) when content/code changes.
+  * Keep the reply concise (no need to print a full 6-Lens Scorecard for tiny edits).
+* **Tier 2 — Full Review & Consolidated Browser QA (Major Milestones & Pre-Deploy Only):**
+  * Trigger live browser subagent verification **only** when: (a) building a brand-new component or major layout overhaul, (b) doing a single consolidated Desktop + Mobile sweep right before deploying to GitHub Pages, or (c) when the user explicitly asks to verify in the browser / check mobile.
+  * Evaluate across all 6 lenses:
   1. **Pass 1 — UX / Graphic Designer (Proactive Visual Critique & Live Render Check):**
-     * **Never Rubber-Stamp Visual Changes:** When adding or modifying UI elements (buttons, cards, spacing, typography), the UX/Visual Designer pass must **visually inspect the live browser render** (not just read code) to verify that new CSS rules actually loaded cleanly in Vite HMR and did not suffer from browser default styles (like `<a>` underlines or collapsed flex gaps).
+     * **Never Rubber-Stamp Major Visual Changes:** On Tier 2 milestones, visually inspect the live browser render (Desktop + Mobile) to verify CSS rules loaded cleanly and catch subtle layout/blend/overflow bugs.
      * **Have Strong Design Opinions:** Actively critique spacing, visual hierarchy (e.g., primary vs. secondary button weight, "button soup" next to pill tags, awkward line-wrapping at mid-sized viewports), alignment, and proportion—and proactively offer cleaner UX alternatives whenever a layout feels crowded or unbalanced.
      * **Cross-Page Copy & Label Parallelism:** Audit headings, dropdowns, and CTAs across sibling pages (`DESIGN_SYSTEM.md`), plus responsive behavior (Desktop/Tablet/Mobile) and WCAG 2.1 AA accessibility.
-  2. **Pass 2 — Principal Web Dev:** Smoothness (`60fps` transitions, View Transitions), zero iframe polling hacks, clean Astro patterns, and GitHub Pages compatibility.
+  2. **Pass 2 — Principal Web Dev:** Smoothness (`60fps` transitions), zero iframe polling hacks, clean Astro patterns, and GitHub Pages compatibility.
   3. **Pass 3 — Software Architect:** Single responsibility, 3-Tier Style Isolation compliance, and zero duplicated data.
-  4. **Pass 4 — General QA (`npm.cmd run qa`):** Automated spellcheck (`cspell`), internal/external broken link validation (`scripts/qa-check.mjs`), cross-page naming consistency check, and production build verification (`astro build`).
+  4. **Pass 4 — General QA (`npm.cmd run qa:spell` + `npm.cmd run qa:links`, plus `astro build` pre-deploy):** Automated spellcheck (`cspell`), internal/external broken link validation (`scripts/qa-check.mjs`), and cross-page naming consistency check. *(Avoid running `astro build` while `astro dev` is active to prevent `.astro/` cache collisions.)*
   5. **Pass 5 — Docs & Playbook Sync:** Verify `SPEC.md`, `DESIGN_SYSTEM.md`, and `PLAYBOOK.md` remain accurate.
-  6. **Pass 6 — LXD / UXD / ID Career Advisor ("The Subtle Mentor"):** Non-blocking, **1–2 sentences max** at the bottom of the summary (`💡 Career Advisor Note`). Offers a subtle observation grounded in modern Instructional Design / LXD / UX hiring trends (e.g., surfacing measurable ROI metrics, adult learning frameworks, or AI-assisted workflows) and invites the user with *"Let me know if you'd like to explore this."*
+  6. **Pass 6 — LXD / UXD / ID Career Advisor ("The Subtle Mentor"):** Non-blocking, **1–2 sentences max** at the bottom of milestone summaries (`💡 Career Advisor Note`).
 
-### Required Post-Change Summary Format
-After every change, output a concise summary block:
-* **Changes Made:** 1–3 bullets of what was updated.
-* **Pass 1–5 Scorecard:** 1-line status for **UX/Visual**, **Web Dev**, **Architect**, **QA (`npm run qa`)**, and **Docs Sync**.
-* **💡 Career Advisor Note (Optional, 1–2 sentences max):** Subtle portfolio tip or question.
+### Post-Change Summary Format
+* **Tier 1 (Small Tweaks):** Brief, direct summary of what changed (1–3 bullets).
+* **Tier 2 (Major Milestones):** Concise summary + **Pass 1–5 Scorecard** (1 line each) + optional **💡 Career Advisor Note** (1–2 sentences max).
