@@ -1,7 +1,7 @@
 ---
 import { withBase } from '../utils/url';
 
-const portraitUrl = withBase('/images/home/joyce-portrait.png');
+const portraitUrl = withBase('/images/home/joyce-portrait.jpeg');
 
 const categories = [
   { label: 'Learning Experience Design', href: withBase('/all-lxd-projects') },
@@ -27,41 +27,29 @@ const categories = [
     </h2>
 
     <div class="bio-grid">
-      <div class="bio-portrait-col reveal-on-scroll" data-delay="120">
-        <div class="portrait-ring">
-          <img
-            src={portraitUrl}
-            alt="Portrait of Joyce Yang"
-            class="portrait-img"
-            width="420"
-            height="420"
-            loading="eager"
-          />
-        </div>
-      </div>
-
       <div class="bio-text-col">
-        <p class="reveal-on-scroll" data-delay="160">
-          Based in San Diego and Orange County, Joyce specializes in creating memorable instructional designs that are
-          intuitive and learner-centered. She believes that the best design is simple, purposeful, and easy to
-          navigate.
+        <p class="reveal-on-scroll" data-delay="120">
+          Based in Southern California, Joyce specializes in creating impactful instructional design solutions that 
+          are intuitive and learner-centered. She believes that the best design is simple, purposeful, and easy to navigate.
         </p>
-        <p class="reveal-on-scroll" data-delay="220">
-          In addition to her design experience, Joyce brings 6+ years of educational leadership and is currently
-          pursuing a second master’s degree in Instructional Design and Technology, focusing on creating learning
-          solutions that drive engagement, improvement, and motivation.
+        <p class="reveal-on-scroll" data-delay="180">
+          Academically, Joyce has a Master in Education from the University of California, San Diego, and a Master in 
+          Instructional Design and Technology from Commonwealth University of Pennsylvania, Bloomsburg. Joyce brings 
+          6+ years of educational leadership and is focusing on creating learning solutions that drive engagement, 
+          improvement, and motivation.
         </p>
-        <p class="reveal-on-scroll" data-delay="280">
-          Outside of instructional design, she has collaborated with WeConcile, an early-stage start-up, and designed a
-          food service app that was a finalist in the 2022 Global Innovation Challenge, Design for Crisis, hosted by
-          the UMO Design Foundation.
+        <p class="reveal-on-scroll" data-delay="240">
+          She is currently an Instructional Designer at Inogen, a medical device company, where she owns end-to-end 
+          development of several e-learning courses using Articulate Storyline, Rise, and other tools. Joyce also 
+          has a passion for product design, where she was a finalist in the 2022 Global Innovation Challenge, 
+          Design for Crisis, hosted by the UMO Design Foundation.
         </p>
-        <p class="reveal-on-scroll" data-delay="340">
+        <p class="reveal-on-scroll" data-delay="300">
           Outside of innovating, you can find Joyce reading 📖, doing ceramics🏺, hot yoga 🧘‍♀️, traveling 🌄, and
           playing tennis🎾.
         </p>
 
-        <div class="bio-inline-links reveal-on-scroll" data-delay="400">
+        <div class="bio-inline-links reveal-on-scroll" data-delay="360">
           <a href={withBase('/resume')} class="bio-arrow-link">Resume →</a>
           <a
             href="https://www.linkedin.com/in/joyce-yang00/"
@@ -71,6 +59,19 @@ const categories = [
           >
             LinkedIn →
           </a>
+        </div>
+      </div>
+
+      <div class="bio-portrait-col reveal-on-scroll" data-delay="160">
+        <div class="portrait-ring">
+          <img
+            src={portraitUrl}
+            alt="Portrait of Joyce Yang"
+            class="portrait-img"
+            width="420"
+            height="420"
+            loading="eager"
+          />
         </div>
       </div>
     </div>
@@ -225,17 +226,18 @@ const categories = [
 
   .display-name {
     text-align: center;
-    font-size: clamp(2.2rem, 6.8vw, 6.2rem);
+    font-size: clamp(2rem, 7.6vw, 7.5rem);
     font-weight: 800;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     color: var(--text-pure-black);
     margin: 0 0 64px 0;
-    line-height: 1.08;
+    line-height: 1.05;
+    white-space: nowrap;
   }
 
   .bio-grid {
     display: grid;
-    grid-template-columns: 0.85fr 1.15fr;
+    grid-template-columns: 1.15fr 0.85fr;
     gap: 64px;
     align-items: center;
     margin-bottom: 72px;
@@ -255,11 +257,6 @@ const categories = [
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    transition: transform 0.5s var(--ease-smooth);
-  }
-
-  .portrait-ring:hover {
-    transform: translateY(-4px) scale(1.015);
   }
 
   .portrait-img {
@@ -339,9 +336,18 @@ const categories = [
   }
 
   @media (max-width: 900px) {
+    .display-name {
+      font-size: clamp(1.75rem, 8vw, 3.2rem);
+      margin-bottom: 40px;
+    }
+
     .bio-grid {
       grid-template-columns: 1fr;
       gap: 40px;
+    }
+
+    .bio-portrait-col {
+      order: -1;
     }
 
     .category-cta-row {

@@ -103,7 +103,12 @@ You **never** need to edit HTML grid code to add a project!
    * Adds the project to the top `Navbar.astro` dropdown menu in the right order (using the exact `title` from your `.mdx` file so they never drift out of sync).
    * Creates the full case study sub-page at `/new-onboarding-course`.
 
-### Recipe B: Add a Brand-New Section or Standalone Page
+### Recipe B: Hide or Remove a Project (Without Breaking Grid Alignment)
+Because the 2-column project grid and the top `Navbar.astro` dropdowns are generated automatically from `src/content/projects/`, **you never have to touch HTML or CSS grid alignment**:
+* **To Temporarily Hide a Project (Keep the page & URL intact):** Add `listed: false` to the frontmatter of that project's `.mdx` file. It disappears from the gallery and Navbar dropdown immediately, and the remaining cards auto-reflow cleanly.
+* **To Permanently Remove a Project:** Delete its `.mdx` file in `src/content/projects/` (e.g., `src/content/projects/old-project.mdx`), and optionally delete its unused image folder in `public/images/projects/<slug>/`. Both the gallery grid and the Navbar dropdown update automatically.
+
+### Recipe C: Add a Brand-New Section or Standalone Page
 * Prompt the agent: *"Create a new standalone page at `/speaking` using `BaseLayout.astro` and add it to the top `Navbar.astro`."*
 
 ---
